@@ -11,11 +11,14 @@ QEMU_MACH="accel=kvm:tcg" # q35 for pass-through
 
 #NRCPU=${NRCPU:-4}
 #MEMORY=${MEMORY:-8192}
-NRCPU=${NRCPU:-4}
+NRCPU=${NRCPU:-16}
 MEMORY=${MEMORY:-1024}
-TAP_QUEUES=${TAP_QUEUES:-$NRCPU}
+#TAP_QUEUES=${TAP_QUEUES:-$NRCPU}
+TAP_QUEUES=${TAP_QUEUES:-2}
 TAP_MQ=${TAP_MQ:-true}
 
+QTAP=${QTAP:-}
+MAC_ADDR=${MAC_ADDR:-} # mac address
 V4_ADDR=${V4_ADDR:-} # dhcp by default
 V4_PREFIX=${V4_PREFIX:-} # dhcp by default
 V6_ADDR=${V6_ADDR:-"2002:ad6:c2c4::1"}
@@ -39,9 +42,9 @@ IMAGE_INIT="/sbin/init.real"
 SCRIPT=${SCRIPT:-}
 ENVIRON_ARG=${ENVIRON_ARG:-}
 MY_ARCH=$(uname -m)
-USE_KVM=${USE_KVM:-false}
+USE_KVM=${USE_KVM:-true}
 
-GDB=${GDB:-false}
+GDB=${GDB:-true}
 GUEST=${GUEST:-false}
 MODULES=${MODULES:-false}
 TTY=${TTY:-ttyS0}
@@ -105,7 +108,7 @@ host() {
 
 	local console
 	console+=" -display none"
-	console+=" -serial mon:stdio"
+	console+=" -monitor telnet::45454,server,nowait -serial mon:stdio"
 
 	if [[ "${ARCH}" != "arm64" ]]; then
 		cmdline+=" console=$TTY,115200"
@@ -131,8 +134,13 @@ host() {
 
 	if $NET_TAP; then
 		local dev="qtap1"
+
 		if $TAP_MQ; then
 			dev="qtap0"
+		fi
+
+		if [[ ! -z $QTAP ]]; then
+			dev=$QTAP
 		fi
 
 		local vhost=""
@@ -147,6 +155,10 @@ host() {
 		fi
 
 		net+=" -device virtio-net-pci,netdev=virtual"
+		if [[ ! -z $MAC_ADDR ]];then
+			net+=",mac=$MAC_ADDR"
+		fi
+
 		if $TAP_MQ; then
 			net+=",mq=on"
 		fi
@@ -406,6 +418,7 @@ guest() {
 		append_to_hosts "$V6_ADDR"
 	fi
 
+        echo $V4_ADDR
 	if [[ ! -z "$V4_ADDR" ]]; then
 		ip -4 addr add "${V4_ADDR}/${V4_PREFIX}" dev eth0
 		append_to_hosts "$V4_ADDR"
@@ -619,7 +632,10 @@ else
 		fi
 
 		if $TAP_MQ; then
-			V4_ADDR=10.10.10.2
+			echo $V4_ADDR
+			if [[ -z "$V4_ADDR" ]]; then
+				V4_ADDR=10.10.10.2
+			fi
 			V4_PREFIX=24
 		else
 			V4_ADDR=10.10.11.2
