@@ -169,6 +169,7 @@ host() {
 	fi
 
         #net+=" -netdev user,id=n"
+        net+=" -device intel-iommu,intremap=on"
         net+=" -netdev user,id=p -netdev user,id=q"
         #net+=" -device pcie-root-port,id=d"
         #net+=" -device pcie-pci-bridge,id=c"
