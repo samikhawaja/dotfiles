@@ -4,18 +4,20 @@
 # {{{
 SSH_PORT=${SSH_PORT:-42222}
 
-QEMU_PATH=
+QEMU_PATH=/usr/local/google/home/skhawaja/work/expressway/qemu/upstream/build/
 QEMU_PREFIX=
 QEMU_SUFFIX=
-QEMU_MACH="accel=kvm:tcg" # q35 for pass-through
+#QEMU_MACH="accel=kvm:q35" # q35 for pass-through
+QEMU_MACH="q35,accel=kvm,kernel-irqchip=split" # q35 for pass-through
 
-#NRCPU=${NRCPU:-4}
+
+#NRCPU=${NRCPU:-1}
 #MEMORY=${MEMORY:-8192}
-NRCPU=${NRCPU:-16}
-MEMORY=${MEMORY:-1024}
+NRCPU=${NRCPU:-1}
+MEMORY=${MEMORY:-4096}
 #TAP_QUEUES=${TAP_QUEUES:-$NRCPU}
 TAP_QUEUES=${TAP_QUEUES:-2}
-TAP_MQ=${TAP_MQ:-true}
+TAP_MQ=${TAP_MQ:-false}
 
 QTAP=${QTAP:-}
 MAC_ADDR=${MAC_ADDR:-} # mac address
@@ -111,9 +113,10 @@ host() {
 	console+=" -monitor telnet::45454,server,nowait -serial mon:stdio"
 
 	if [[ "${ARCH}" != "arm64" ]]; then
+                #cmdline+=" earlyprintk=serial,$TTY,115200"
 		cmdline+=" console=$TTY,115200"
 	fi
-	cmdline+=" quiet oops=panic retbleed=off"
+	cmdline+=" oops=panic retbleed=off"
 
 	local net
 
@@ -154,7 +157,8 @@ host() {
 			net+=",queues=${TAP_QUEUES}"
 		fi
 
-		net+=" -device virtio-net-pci,netdev=virtual"
+		#net+=" -device virtio-net-pci,netdev=virtual"
+		
 		if [[ ! -z $MAC_ADDR ]];then
 			net+=",mac=$MAC_ADDR"
 		fi
@@ -163,6 +167,28 @@ host() {
 			net+=",mq=on"
 		fi
 	fi
+
+        #net+=" -netdev user,id=n"
+        net+=" -netdev user,id=p -netdev user,id=q"
+        #net+=" -device pcie-root-port,id=d"
+        #net+=" -device pcie-pci-bridge,id=c"
+        net+=" -device pcie-root-port,bus=pcie.0,id=c,slot=1"
+        net+=" -device virtio-net-pci,bus=c,addr=0.2,netdev=q,id=j,sriov-pf=h"
+        net+=" -device virtio-net-pci,bus=c,addr=0.1,netdev=p,id=i,sriov-pf=h"
+        net+=" -device virtio-net-pci,bus=c,addr=0x0.0x0,netdev=virtual,id=h"
+        #net+=" -device virtio-rng-pci,bus=c,addr=0x0.0x4,id=o,sriov-pf=g"
+        #net+=" -device virtio-rng-pci,bus=c,addr=0x0.0x3,id=m,sriov-pf=g"
+        #net+=" -device virtio-rng-pci,bus=c,addr=0x0.0x2,id=l,sriov-pf=g"
+        #net+=" -device virtio-rng-pci,bus=c,addr=0x0.0x1,id=k,sriov-pf=g"
+        #net+=" -device virtio-rng-pci,bus=c,addr=0x0.0x0,id=g"
+
+
+
+
+	#net+=" -device virtio-net-pci,bus=b,addr=0x0.0x3,netdev=q,sriov-pf=f"
+        #net+=" -device virtio-net-pci,bus=b,addr=0x0.0x2,netdev=p,sriov-pf=f"
+        #net+=" -device virtio-net-pci,bus=b,addr=0x1.0x1,netdev=o,sriov-pf=f"
+        #net+=" -device virtio-net-pci,bus=b,addr=0x1.0x0,netdev=n,id=f"
 
 	cmdline+=" $CMDLINE"
 	cmdline+=" rootfstype=9p"
@@ -247,13 +273,31 @@ host() {
 		exit 1
 	fi
 
-	$QEMU_PREFIX ${QEMU_PATH}qemu-system-${qemu_flavor} \
+	echo "$QEMU_PREFIX ${QEMU_PATH}qemu-system-${qemu_flavor} \
 		-nographic \
 		-no-reboot \
 		$accel \
 		-device i6300esb,id=watchdog0 \
 		-watchdog-action pause \
 		-device virtio-rng-pci \
+		-cpu $cpu \
+		-smp $NRCPU \
+		-m $MEMORY \
+		$fs \
+		$console \
+		$net \
+		$gdb \
+		-kernel "$kernel" \
+		-append "$cmdline" $QEMU_SUFFIX"
+
+        echo ${QEMU_PATH}
+	#exit
+        $QEMU_PREFIX ${QEMU_PATH}qemu-system-${qemu_flavor} \
+		-nographic \
+		-no-reboot \
+		$accel \
+		-device i6300esb,id=watchdog0 \
+		-watchdog-action pause \
 		-cpu $cpu \
 		-smp $NRCPU \
 		-m $MEMORY \
