@@ -114,8 +114,7 @@ host() {
 	console+=" -monitor telnet::45454,server,nowait -serial mon:stdio"
 
 	if [[ "${ARCH}" != "arm64" ]]; then
-                #cmdline+=" earlyprintk=serial,$TTY,115200"
-		cmdline+=" console=$TTY,115200"
+		cmdline+=" earlyprintk=serial,ttyS0,115200 console=$TTY,115200"
 	fi
 	cmdline+=" oops=panic retbleed=off"
 
@@ -271,7 +270,7 @@ host() {
 	init+="$ENVIRON_ARG "
 	init+="/tmp/dir_q/q"
 
-	cmdline+=" init=/bin/sh -- -c \"$init\""
+	cmdline+=" init=/bin/bash -- -c \"$init\""
 
 	if [[ -z "$cpu" ]]; then
 		echo "unknown cpu for ${ARCH} arch"
@@ -279,7 +278,6 @@ host() {
 	fi
 
 	echo "$QEMU_PREFIX ${QEMU_PATH}qemu-system-${qemu_flavor} \
-		-nographic \
 		-no-reboot \
 		$accel \
 		-device i6300esb,id=watchdog0 \
@@ -298,7 +296,6 @@ host() {
         echo ${QEMU_PATH}
 	#exit
         $QEMU_PREFIX ${QEMU_PATH}qemu-system-${qemu_flavor} \
-		-nographic \
 		-no-reboot \
 		$accel \
 		-device i6300esb,id=watchdog0 \
