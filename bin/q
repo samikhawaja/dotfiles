@@ -182,7 +182,7 @@ host() {
         #net+=" -device virtio-rng-pci,bus=c,addr=0x0.0x3,id=m,sriov-pf=g"
         #net+=" -device virtio-rng-pci,bus=c,addr=0x0.0x2,id=l,sriov-pf=g"
         #net+=" -device virtio-rng-pci,bus=c,addr=0x0.0x1,id=k,sriov-pf=g"
-        #net+=" -device virtio-rng-pci,bus=c,addr=0x0.0x0,id=g"
+        #net+=" -device virtio-rng-pci,bus=pcie.0,addr=0x8.0x0,id=g"
 
 
 
