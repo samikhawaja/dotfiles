@@ -169,7 +169,7 @@ host() {
 	fi
 
         #net+=" -netdev user,id=n"
-        net+=" -device intel-iommu,intremap=on"
+        net+=" -device intel-iommu,intremap=on,x-scalable-mode=on,device-iotlb=on"
         #net+=" -netdev user,id=p -netdev user,id=q"
         #net+=" -device vmcoreinfo"
         #net+=" -device pcie-root-port,id=d"
