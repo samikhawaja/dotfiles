@@ -114,7 +114,7 @@ host() {
 	console+=" -monitor telnet::45454,server,nowait -serial mon:stdio"
 
 	if [[ "${ARCH}" != "arm64" ]]; then
-		cmdline+=" earlyprintk=serial,ttyS0,115200 console=$TTY,115200"
+		cmdline+=" earlyprintk=serial,ttyS0,115200 loglevel=8 console=$TTY,115200"
 	fi
 	cmdline+=" oops=panic retbleed=off"
 
@@ -296,7 +296,6 @@ host() {
         echo ${QEMU_PATH}
 	#exit
         $QEMU_PREFIX ${QEMU_PATH}qemu-system-${qemu_flavor} \
-		-no-reboot \
 		$accel \
 		-device i6300esb,id=watchdog0 \
 		-watchdog-action pause \
