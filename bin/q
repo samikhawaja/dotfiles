@@ -296,6 +296,7 @@ host() {
         echo ${QEMU_PATH}
 	#exit
         $QEMU_PREFIX ${QEMU_PATH}qemu-system-${qemu_flavor} \
+		-no-reboot \
 		$accel \
 		-device i6300esb,id=watchdog0 \
 		-watchdog-action pause \
