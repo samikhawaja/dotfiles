@@ -9,7 +9,7 @@ QEMU_PREFIX=
 QEMU_SUFFIX=
 #QEMU_MACH="accel=kvm:q35" # q35 for pass-through
 QEMU_MACH="q35,accel=kvm,kernel-irqchip=split" # q35 for pass-through
-
+IOMMU_PASID=${IOMMU_PASID:-""}
 
 #NRCPU=${NRCPU:-1}
 #MEMORY=${MEMORY:-8192}
@@ -169,7 +169,12 @@ host() {
 	fi
 
         #net+=" -netdev user,id=n"
-        net+=" -device intel-iommu,intremap=on,x-scalable-mode=on,device-iotlb=on"
+        net+=" -device intel-iommu,intremap=on"
+
+        if [ ! -z "$IOMMU_PASID" ]; then
+          net+=",x-scalable-mode=on,device-iotlb=on"
+        fi
+
         #net+=" -netdev user,id=p -netdev user,id=q"
         #net+=" -device vmcoreinfo"
         #net+=" -device pcie-root-port,id=d"
