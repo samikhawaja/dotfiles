@@ -14,7 +14,7 @@ IOMMU_PASID=${IOMMU_PASID:-""}
 #NRCPU=${NRCPU:-1}
 #MEMORY=${MEMORY:-8192}
 NRCPU=${NRCPU:-1}
-MEMORY=${MEMORY:-4096}
+MEMORY=${MEMORY:-16384}
 #TAP_QUEUES=${TAP_QUEUES:-$NRCPU}
 TAP_QUEUES=${TAP_QUEUES:-2}
 TAP_MQ=${TAP_MQ:-false}
@@ -169,7 +169,7 @@ host() {
 	fi
 
         #net+=" -netdev user,id=n"
-        net+=" -device intel-iommu,intremap=on"
+        net+=" -device intel-iommu,intremap=on,aw-bits=48"
 
         if [ ! -z "$IOMMU_PASID" ]; then
           net+=",x-scalable-mode=on,device-iotlb=on"
@@ -201,7 +201,7 @@ host() {
 	cmdline+=" rootfstype=9p"
 	cmdline+=" rootflags=version=9p2000.L,trans=virtio,access=any"
 	cmdline+=" ro"
-	cmdline+=" nokaslr memmap=128M!3G'"
+	cmdline+=" nokaslr memmap=4G!12G nd_e820.pmem=12G,4G,mode=devdax,align=1G'"
 
         cmdline+=" liveupdate=1 kho=1 "
 
