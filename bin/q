@@ -175,13 +175,13 @@ host() {
           net+=",x-scalable-mode=on,device-iotlb=on"
         fi
 
-        #net+=" -netdev user,id=p -netdev user,id=q"
+        net+=" -netdev user,id=p -netdev user,id=q"
         #net+=" -device vmcoreinfo"
         #net+=" -device pcie-root-port,id=d"
         #net+=" -device pcie-pci-bridge,id=c"
         net+=" -device pcie-root-port,bus=pcie.0,id=c,slot=1"
-        #net+=" -device virtio-net-pci,bus=c,addr=0.2,netdev=q,id=j,sriov-pf=h"
-        #net+=" -device virtio-net-pci,bus=c,addr=0.1,netdev=p,id=i,sriov-pf=h"
+        net+=" -device virtio-net-pci,bus=c,addr=0.2,netdev=q,id=j,sriov-pf=h"
+        net+=" -device virtio-net-pci,bus=c,addr=0.1,netdev=p,id=i,sriov-pf=h"
         net+=" -device virtio-net-pci,bus=c,addr=0x0.0x0,netdev=virtual,id=h"
         #net+=" -device virtio-rng-pci,bus=c,addr=0x0.0x4,id=o,sriov-pf=g"
         #net+=" -device virtio-rng-pci,bus=c,addr=0x0.0x3,id=m,sriov-pf=g"
