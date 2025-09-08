@@ -202,8 +202,8 @@ host() {
 	cmdline+=" $CMDLINE"
 	cmdline+=" rootfstype=9p"
 	cmdline+=" rootflags=version=9p2000.L,trans=virtio,access=any"
-	cmdline+=" ro"
-	cmdline+=' nokaslr memmap=4G!12G nd_e820.pmem=12G,4G,mode=devdax,align=1G'
+	cmdline+=" ro nokaslr"
+	cmdline+=' memmap=4G!12G nd_e820.pmem=12G,4G,mode=devdax,align=1G'
 
         cmdline+=" liveupdate=1 kho=1 "
 
