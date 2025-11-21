@@ -17,7 +17,7 @@ NRCPU=${NRCPU:-1}
 MEMORY=${MEMORY:-16384}
 #TAP_QUEUES=${TAP_QUEUES:-$NRCPU}
 TAP_QUEUES=${TAP_QUEUES:-2}
-TAP_MQ=${TAP_MQ:-false}
+TAP_MQ=${TAP_MQ:-true}
 LIVE_UPDATE=${LIVE_UPDATE:-true}
 
 QTAP=${QTAP:-}
@@ -163,9 +163,9 @@ host() {
 			net+=",mac=$MAC_ADDR"
 		fi
 
-		if $TAP_MQ; then
-			net+=",mq=on"
-		fi
+#		if $TAP_MQ; then
+#			net+=",mq=on"
+#		fi
 	fi
 
         #net+=" -netdev user,id=n"
@@ -183,6 +183,9 @@ host() {
         #net+=" -device virtio-net-pci,bus=c,addr=0.2,netdev=q,id=j,sriov-pf=h"
         #net+=" -device virtio-net-pci,bus=c,addr=0.1,netdev=p,id=i,sriov-pf=h"
         net+=" -device virtio-net-pci,bus=c,addr=0x0.0x0,netdev=virtual,id=h"
+	if $TAP_MQ; then
+	        net+=",mq=on"
+	fi
 
         #net+=" -device virtio-net-pci,bus=c,addr=0x1.0x0"
         #net+=" -device virtio-rng-pci,bus=c,addr=0x0.0x4,id=o,sriov-pf=g"
