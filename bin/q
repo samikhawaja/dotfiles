@@ -15,7 +15,7 @@ IOMMU_PASS=${IOMMU_PASS:-0}
 
 #NRCPU=${NRCPU:-1}
 #MEMORY=${MEMORY:-8192}
-NRCPU=${NRCPU:-1}
+NRCPU=${NRCPU:-4}
 MEMORY=${MEMORY:-16384}
 #TAP_QUEUES=${TAP_QUEUES:-$NRCPU}
 TAP_QUEUES=${TAP_QUEUES:-2}
@@ -134,7 +134,7 @@ host() {
 			done
 		fi
 
-		net+=" -device virtio-net-pci,netdev=virtual"
+		net+=" -device virtio-net-pci,netdev=virtual,ats=on"
 	fi
 
 	if $NET_TAP; then
