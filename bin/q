@@ -12,6 +12,7 @@ QEMU_MACH="q35,accel=kvm,kernel-irqchip=split" # q35 for pass-through
 IOMMU_PASID=${IOMMU_PASID:-""}
 IOMMU_ON=${IOMMU_ON:-on}
 IOMMU_PASS=${IOMMU_PASS:-0}
+SRIOV_ON=${SRIOV_ON:-""}
 
 #NRCPU=${NRCPU:-1}
 #MEMORY=${MEMORY:-8192}
@@ -183,9 +184,13 @@ host() {
         #net+=" -device pcie-root-port,id=d"
         #net+=" -device pcie-pci-bridge,id=c"
         net+=" -device pcie-root-port,bus=pcie.0,id=c,slot=1"
-        net+=" -device virtio-net-pci,bus=c,addr=0.3,netdev=r,id=k,sriov-pf=h,ats=on"
-        net+=" -device virtio-net-pci,bus=c,addr=0.2,netdev=q,id=j,sriov-pf=h,ats=on"
-        net+=" -device virtio-net-pci,bus=c,addr=0.1,netdev=p,id=i,sriov-pf=h,ats=on"
+
+        if [ ! -z "${SRIOV_ON}" ]; then
+          net+=" -device virtio-net-pci,bus=c,addr=0.3,netdev=r,id=k,sriov-pf=h,ats=on"
+          net+=" -device virtio-net-pci,bus=c,addr=0.2,netdev=q,id=j,sriov-pf=h,ats=on"
+          net+=" -device virtio-net-pci,bus=c,addr=0.1,netdev=p,id=i,sriov-pf=h,ats=on"
+        fi
+
         net+=" -device virtio-net-pci,bus=c,addr=0x0.0x0,netdev=virtual,id=h,ats=on"
 	if $TAP_MQ; then
 	        net+=",mq=on"
