@@ -11,6 +11,7 @@ QEMU_SUFFIX=
 QEMU_MACH="q35,accel=kvm,kernel-irqchip=split" # q35 for pass-through
 IOMMU_PASID=${IOMMU_PASID:-""}
 IOMMU_ON=${IOMMU_ON:-on}
+FORCE_IOVA=${FORCE_IOVA:-0}
 IOMMU_PASS=${IOMMU_PASS:-0}
 SRIOV_ON=${SRIOV_ON:-""}
 
@@ -216,7 +217,7 @@ host() {
 	cmdline+=" ro nokaslr "
 	cmdline+=' memmap=4G!12G nd_e820.pmem=12G,4G,mode=devdax,align=1G'
 
-	cmdline+=" loglevel=8 liveupdate=1 kho=1 intel_iommu=${IOMMU_ON} iommu=on iommu.passthrough=0 high"
+	cmdline+=" loglevel=8 liveupdate=1 kho=1 intel_iommu=${IOMMU_ON} iommu=on iommu.passthrough=0 iommu.force_iova=${FORCE_IOVA} high"
 
 	local gdb
 	$GDB && gdb+=" -s"
