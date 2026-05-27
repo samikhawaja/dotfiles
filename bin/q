@@ -14,6 +14,7 @@ IOMMU_ON=${IOMMU_ON:-on}
 FORCE_IOVA=${FORCE_IOVA:-0}
 IOMMU_PASS=${IOMMU_PASS:-0}
 SRIOV_ON=${SRIOV_ON:-""}
+DISABLE_ACS=${DISABLE_ACS:-""}
 
 #NRCPU=${NRCPU:-1}
 #MEMORY=${MEMORY:-8192}
@@ -190,11 +191,15 @@ host() {
           net+=" -device virtio-net-pci,bus=c,addr=0.3,netdev=r,id=k,sriov-pf=h,ats=on"
           net+=" -device virtio-net-pci,bus=c,addr=0.2,netdev=q,id=j,sriov-pf=h,ats=on"
           net+=" -device virtio-net-pci,bus=c,addr=0.1,netdev=p,id=i,sriov-pf=h,ats=on"
-        fi
 
-        net+=" -device virtio-net-pci,bus=c,addr=0x0.0x0,netdev=virtual,id=h,ats=on"
+          net+=" -device virtio-net-pci,bus=c,addr=0.5,sriov-pf=q,ats=on"
+	fi
+
+        net+=" -device virtio-net-pci,bus=c,addr=0x0.0x0,netdev=virtual,id=h,ats=on,multifunction=on"
+        net+=" -device virtio-net-pci,bus=c,addr=0.4,id=q,ats=on"
+
 	if $TAP_MQ; then
-	        net+=",mq=on"
+	        net+=",mq=on "
 	fi
 
         #net+=" -device virtio-net-pci,bus=c,addr=0x1.0x0"
@@ -218,6 +223,10 @@ host() {
 	cmdline+=' memmap=4G!12G nd_e820.pmem=12G,4G,mode=devdax,align=1G'
 
 	cmdline+=" loglevel=8 liveupdate=1 kho=1 intel_iommu=${IOMMU_ON} iommu=on iommu.passthrough=0 iommu.force_iova=${FORCE_IOVA} high"
+
+	if [ ! -z "${DISABLE_ACS}" ]; then
+		cmdline+=" pci=disable_acs_redir"
+	fi
 
 	local gdb
 	$GDB && gdb+=" -s"
